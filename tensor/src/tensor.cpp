@@ -132,13 +132,18 @@ void Tensor<float>::Fill(const std::vector<float>& values, bool row_major)
 
 }
 
+void Tensor<float>::Fill(float value) 
+{
+    this->data_.fill(value);
+}
+
 void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes, bool row_major)
 {
     assert(!this->data_.empty() && "tensor data is empty");
     assert(!shapes.empty() && "shapes is empty");
     const uint32_t origin_size = this->data_.size();
     const uint32_t current_size = std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<>());
-    assert((origin_size != current_size) && "size is not same");
+    assert((origin_size == current_size) && "size is not same");
 
     std::vector<float> values;
     if(row_major)
@@ -204,8 +209,165 @@ float* Tensor<float>::raw_ptr()
 float* Tensor<float>::raw_ptr(uint32_t offset)
 {
     const uint32_t size = this->size();
-    assert(size < offset && "offset > size");
+    assert(offset < size && "offset > size");
     return this->data_.memptr() + offset;
 }
 
+void Tensor<float>::set_data(const arma::fcube& data)
+{
+    assert(this->data_.n_cols == data.n_cols && "n_cols is not same");
+    assert(this->data_.n_rows == data.n_rows && "n_rows is not same");
+    assert(this->data_.n_slices == data.n_slices && "n_slices is not same");
+    this->data_ = data;
 }
+
+float Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) const 
+{
+    return this->data_.at(row, col, channel);
+}
+
+float& Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col)
+{
+    return this->data_.at(row, col, channel);
+}
+float Tensor<float>::index(uint32_t offset) const
+{
+    assert(offset < size() && "offset > size");
+    return this->data_.at(offset);
+}
+
+float& Tensor<float>::index(uint32_t offset)
+{
+    assert(offset < size() && "offset > size");
+    return this->data_.at(offset);
+}
+
+std::vector<uint32_t> Tensor<float>::shapes() const
+{
+    return {this->channels(), this->rows(), this->cols()};
+}
+   
+arma::fcube& Tensor<float>::data()
+{
+    return this->data_;
+}
+
+const arma::fcube& Tensor<float>::data() const
+{
+    return this->data_;
+}
+arma::fmat& Tensor<float>::slice(uint32_t channel)
+{
+    return this->data_.slice(channel);
+}
+
+const arma::fmat& Tensor<float>::slice(uint32_t channel) const
+{
+    return this->data_.slice(channel);
+}
+
+void Tensor<float>::Ones()
+{
+    // this->data_.fill(1.0f);
+    this->Fill(1.0f);
+}
+
+void Tensor<float>::Rand()
+{
+    this->data_.randn();
+}
+
+void Tensor<float>::Show()
+{
+    uint32_t channels = this->channels();
+    for(uint32_t i = 0; i < channels; ++i)
+    {     
+        std::cout << "---------- Channel [" << i << "] ----------\n";
+        // 获取第i通道矩阵 arma::fmat
+        const arma::fmat& mat = this->data_.slice(i);
+        // arma重载了<<，直接输出矩阵
+        std::cout << mat << std::endl;
+    }
+}
+
+void Tensor<float>::Flatten(bool row_major)
+{
+    assert(!this->data_.empty() && "tensor data is empty");
+    uint32_t total = this->size();
+    // 展平为一维：shape = {total}
+    this->Reshape({total}, row_major);
+}
+
+void Tensor<float>::Transform(const std::function<float(float)>& filter)
+{
+    assert(!this->data_.empty() && "tensor data is empty");
+    const float* ptr = this->data_.memptr();
+    uint32_t total_elem = this->size();
+    for(uint32_t i = 0; i < total_elem; ++i)
+    {
+        filter(ptr[i]);
+    }
+}
+
+void Tensor<float>::Padding(const std::vector<uint32_t>& pads, float padding_value)
+{
+    assert(!this->data_.empty() && "tensor data is empty");
+    assert(pads.size() == 4 && "pads must be [top,bottom,left,right]");
+
+    uint32_t top    = pads[0];
+    uint32_t bottom = pads[1];
+    uint32_t left   = pads[2];
+    uint32_t right  = pads[3];
+
+    uint32_t old_rows = this->rows();
+    uint32_t old_cols = this->cols();
+    uint32_t chs      = this->channels();
+
+    // 计算padding之后新的行列
+    uint32_t new_rows = old_rows + top + bottom;
+    uint32_t new_cols = old_cols + left + right;
+
+    // 创建新fcube，全部填充padding_value
+    arma::fcube new_cube(new_rows, new_cols, chs);
+    new_cube.fill(padding_value);
+
+    // 每个通道分别拷贝原矩阵到新矩阵的中间位置
+    for(uint32_t c = 0; c < chs; ++c)
+    {
+        const arma::fmat& old_mat = this->data_.slice(c);
+        arma::fmat& new_mat = new_cube.slice(c);
+        // 拷贝：从new_mat的(top,left)开始，复制old_mat整块
+        new_mat.submat(top, left, top + old_rows - 1, left + old_cols - 1) = old_mat;
+    }
+
+    // 替换内部数据
+    this->data_ = std::move(new_cube);
+
+    // 更新raw_shapes_
+    auto& rs = this->raw_shapes_;
+    if(rs.size() == 3)
+    {
+        // [ch,rows,cols]
+        rs[1] = new_rows;
+        rs[2] = new_cols;
+    }
+    else if(rs.size() == 2)
+    {
+        // [rows,cols]
+        rs[0] = new_rows;
+        rs[1] = new_cols;
+    }
+    else
+    {
+        // 一维张量做padding一般无意义，也可以assert拦截
+        assert(false && "padding not support 1‑D tensor");
+    }
+}
+
+float* Tensor<float>::matrix_raw_ptr(uint32_t index)
+{   
+    uint32_t plane = this->cols() * this->rows();
+    return this->raw_ptr(plane * index);
+}
+
+} //end of namespace my_vllm
