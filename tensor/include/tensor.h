@@ -1,5 +1,5 @@
-#ifndef MYVLLM_TENSOR_
-#define MYVLLM_TENSOR_
+#ifndef MYVLLM_TENSOR_H_
+#define MYVLLM_TENSOR_H_
 #include<vector>
 #include<armadillo>
 

@@ -1,0 +1,67 @@
+#ifndef MYVLLM_RUNTIME_IR_H_
+#define MYVLLM_RUNTIME_IR_H_
+
+#include <map>
+#include <memory>
+#include <queue>
+#include <string>
+#include <vector>
+#include <glog/logging.h>
+
+#include "ir.h"
+#include "runtime_operand.h"
+#include "runtime_operator.h"
+
+
+namespace my_vllm 
+{
+// 计算图结构，由多个计算节点和节点之间的数据流图组成
+class RuntimeGraph 
+{
+
+public:
+    RuntimeGraph(std::string param_path, std::string bin_path);
+      
+    void set_bin_path(const std::string &bin_path);
+    void set_param_path(const std::string &param_path);
+
+    const std::string &param_path() const;
+    const std::string &bin_path() const;
+
+    bool Init();
+    const std::vector<std::shared_ptr<RuntimeOperator>> &operators() const;
+
+private:
+    static void InitGraphOperatorsInput(
+        const std::vector<pnnx::Operand *> &inputs, 
+        const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+
+    static void InitGraphOperatorsOutput(
+        const std::vector<pnnx::Operand *> &outputs,
+        const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+
+    static void InitGraphAttrs(
+        const std::map<std::string, pnnx::Attribute> &attrs,
+        const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+
+    static void InitGraphParams(
+        const std::map<std::string, pnnx::Parameter> &params,
+        const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+private:
+    std::string input_name_;  // 计算图输入节点的名称
+    std::string output_name_; // 计算图输出节点的名称
+    std::string param_path_;  // 计算图的结构文件
+    std::string bin_path_;    // 计算图的权重文件
+
+    std::vector<std::shared_ptr<RuntimeOperator>> operators_;
+    std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
+
+    std::unique_ptr<pnnx::Graph> graph_; // pnnx的graph
+};
+
+} // namespace my_vllm
+#endif
