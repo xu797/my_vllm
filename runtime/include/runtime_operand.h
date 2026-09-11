@@ -14,7 +14,7 @@ namespace my_vllm
 struct RuntimeOperand
 {
     std::string name;
-    std::vector<uint32_t> shapes;
+    std::vector<int> shapes;
     std::vector<std::shared_ptr<Tensor<float>>> datas;
     RuntimeDataType type = RuntimeDataType::kTypeUnknown;
 };

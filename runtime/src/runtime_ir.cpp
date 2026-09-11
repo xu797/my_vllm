@@ -155,6 +155,72 @@ void RuntimeGraph::InitGraphOperatorsOutput(const std::vector<pnnx::Operand *> &
 void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> &params, const std::shared_ptr<RuntimeOperator> &runtime_operator) 
 {
     //没实现
+    for (const auto& [param_name, pnnx_param] : params)
+    {
+        RuntimeParameter* rt_param = nullptr;
+        switch (pnnx_param.type)
+        {
+            case 1:
+            {
+                auto* p = new RuntimeParameterBool();
+                p->value = pnnx_param.b;
+                rt_param = p;
+                break;
+            }
+            case 2:
+            {
+                auto* p = new RuntimeParameterInt();
+                p->value = pnnx_param.i;
+                rt_param = p;
+                break;
+            }
+            case 3:
+            {
+                auto* p = new RuntimeParameterFloat();
+                p->value = pnnx_param.f;
+                rt_param = p;
+                break;
+            }
+            case 4:
+            {
+                auto* p = new RuntimeParameterString();
+                p->value = pnnx_param.s;
+                rt_param = p;
+                break;
+            }
+            case 5:
+            {
+                auto* p = new RuntimeParameterIntArray();
+                p->value = pnnx_param.ai;
+                rt_param = p;
+                break;
+            }
+            case 6:
+            {
+                auto* p = new RuntimeParameterFloatArray();
+                p->value = pnnx_param.af;
+                rt_param = p;
+                break;
+            }
+            case 7:
+            {
+                auto* p = new RuntimeParameterStringArray();
+                p->value = pnnx_param.as;
+                rt_param = p;
+                break;
+            }
+            default:
+                // return ParseParameterAttrStatus::kParameterMissingUnknown;
+                return;
+        }
+        if (rt_param == nullptr)
+        {
+            // return ParseParameterAttrStatus::kParameterMissingUnknown;
+            return;
+        }
+        runtime_operator->params[param_name] = rt_param;
+    }
+    // return ParseParameterAttrStatus::kParameterAttrParseSuccess;`
 }
 
 void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs, const std::shared_ptr<RuntimeOperator> &runtime_operator)

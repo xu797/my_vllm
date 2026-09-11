@@ -2,6 +2,7 @@
 #define MYVLLM_RUNTIME_ATTRIBUTE_H_
 
 #include <vector>
+#include <glog/logging.h>
 
 #include "runtime_datatype.h"
 

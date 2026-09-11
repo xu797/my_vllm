@@ -16,7 +16,7 @@ namespace my_vllm
    * 6.string array
    * 7.float array
    */
-  struct RuntimeParameter
+struct RuntimeParameter
 { /// 计算节点中的参数信息
     virtual ~RuntimeParameter() = default;
 

@@ -2,6 +2,7 @@
 #define MYVLLM_RUNTIME_STATUSCODE_H_
 namespace my_vllm {
 
+//算子超参类型
 enum class RuntimeParameterType {
   kParameterUnknown = 0,
   kParameterBool = 1,
@@ -14,6 +15,7 @@ enum class RuntimeParameterType {
   kParameterStringArray = 7,
 };
 
+//执行forward返回的状态码
 enum class InferStatus {
   kInferUnknown = -1,
   kInferSuccess = 0,
@@ -32,6 +34,7 @@ enum class InferStatus {
 
 };
 
+// **解析 PNNX 参数 / 权重阶段**（转换 PNNX IR 到 RuntimeGraph）的返回状态码
 enum class ParseParameterAttrStatus {
   kParameterMissingUnknown = -1,
   kParameterMissingStride = 1,
