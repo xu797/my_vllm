@@ -15,7 +15,7 @@ struct RuntimeAttribute
     std::vector<int> shape;         /// 节点中的形状信息
     RuntimeDataType type = RuntimeDataType::kTypeUnknown;  /// 节点中的数据类型
 
-    template <class T>  //
+    template <class T>  
     std::vector<T> get(bool need_clear_weight = true);
 
     void ClearWeight();

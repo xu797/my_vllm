@@ -1,8 +1,8 @@
 #ifndef MYVLLM_TENSOR_H_
 #define MYVLLM_TENSOR_H_
+
 #include<vector>
 #include<armadillo>
-
 
 namespace my_vllm
 {
