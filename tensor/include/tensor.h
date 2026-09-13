@@ -42,7 +42,7 @@ public:
     改变张量形状
     @param: shapes
     */
-    void Reshape(const std::vector<uint32_t>& shapes, bool row_major); 
+    void Reshape(const std::vector<uint32_t>& shapes, bool row_major = true); 
     
     /**
    * 返回Tensor内的所有数据

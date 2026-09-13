@@ -31,6 +31,12 @@ public:
     bool Init();
     const std::vector<std::shared_ptr<RuntimeOperator>> &operators() const;
 
+    void Build(const std::string &input_name, const std::string &output_name);
+
+    const std::vector<std::shared_ptr<RuntimeOperator>> &get_topo_queues() const;
+
+
+
 private:
     static void InitGraphOperatorsInput(
         const std::vector<pnnx::Operand *> &inputs, 
@@ -51,7 +57,21 @@ private:
         const std::map<std::string, pnnx::Parameter> &params,
         const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
+    void ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op);
+
 private:
+    enum class GraphState
+    {
+        NeedInit = -2,
+        NeedBuild = -1,
+        Complete = 0,
+    };
+
+public:
+    GraphState graph_state() const;
+    
+private:
+    GraphState graph_state_ = GraphState::NeedInit;
     std::string input_name_;  // 计算图输入节点的名称
     std::string output_name_; // 计算图输出节点的名称
     std::string param_path_;  // 计算图的结构文件
@@ -59,6 +79,7 @@ private:
 
     std::vector<std::shared_ptr<RuntimeOperator>> operators_;
     std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
+    std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
 
     std::unique_ptr<pnnx::Graph> graph_; // pnnx的graph
 };

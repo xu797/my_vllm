@@ -22,4 +22,6 @@ target_include_directories(tensor PUBLIC ${GTest_INCLUDE_DIR})
 target_include_directories(tensor PUBLIC ${Armadillo_INCLUDE_DIR})
 target_include_directories(tensor PUBLIC ./include)
 
+# add_library(tensor ${DIR_SOURCE_ARMA})
+
 enable_testing()

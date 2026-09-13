@@ -6,4 +6,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(tensor)
-add_subdirectory(runtime)
+add_subdirectory(graph)

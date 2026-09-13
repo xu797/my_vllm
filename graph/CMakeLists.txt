@@ -1,3 +1,4 @@
+# clear
 find_package(OpenMP REQUIRED)
 find_package(Armadillo REQUIRED)
 find_package(glog REQUIRED)
@@ -10,15 +11,17 @@ if (!WIN32)
     set(link_lib "${link_lib} pthread")
 endif ()
 set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-aux_source_directory(./test/ir_test DIR_TEST_ARMA)
+aux_source_directory(./test/topo_test DIR_TEST_ARMA)
 aux_source_directory(./src DIR_SOURCE_ARMA)
+aux_source_directory(${PROJECT_SOURCE_DIR}/tensor/src TENSOR_SRC)
 
-add_executable(main main.cpp ${DIR_TEST_ARMA} ${DIR_SOURCE_ARMA})
+add_executable(main main.cpp ${DIR_TEST_ARMA} ${DIR_SOURCE_ARMA} ${TENSOR_SRC})
 target_link_libraries(main ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(main PUBLIC ${glog_INCLUDE_DIR})
 target_include_directories(main PUBLIC ${GTest_INCLUDE_DIR})
 target_include_directories(main PUBLIC ${Armadillo_INCLUDE_DIR})
 target_include_directories(main PUBLIC ./include)
+target_include_directories(main PUBLIC ${PROJECT_SOURCE_DIR}/tensor/include)
 
 enable_testing()
