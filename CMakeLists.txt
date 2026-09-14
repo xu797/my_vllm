@@ -7,3 +7,5 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 add_subdirectory(tensor)
 add_subdirectory(graph)
+add_subdirectory(layer)
+add_subdirectory(operators)

@@ -66,6 +66,33 @@ Tensor<float>::Tensor(u_int32_t channels, uint32_t rows, u_int32_t cols)
     }
 }
 
+Tensor<float>::Tensor(const std::vector<uint32_t> &shapes)
+{
+    CHECK(!shapes.empty() && shapes.size() <= 3);
+
+    uint32_t remaining = 3 - shapes.size();
+    std::vector<uint32_t> shapes_(3, 1);
+    std::copy(shapes.begin(), shapes.end(), shapes_.begin() + remaining);
+
+    uint32_t channels = shapes_.at(0);
+    uint32_t rows = shapes_.at(1);
+    uint32_t cols = shapes_.at(2);
+
+    data_ = arma::fcube(rows, cols, channels);
+    if (channels == 1 && rows == 1) 
+    {
+        this->raw_shapes_ = std::vector<uint32_t>{cols};
+    } 
+    else if (channels == 1)
+    {
+        this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+    } 
+    else 
+    {
+        this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+    }
+}
+
 uint32_t Tensor<float>::rows() const
 {
     // CHECK(!this->data_.empty());

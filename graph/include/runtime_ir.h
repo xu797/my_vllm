@@ -11,13 +11,16 @@
 #include "ir.h"
 #include "runtime_operand.h"
 #include "runtime_operator.h"
-
+#include "layer/include/layer.h"
+#include "layer/include/layer_factory.h"
 
 namespace my_vllm 
 {
 // 计算图结构，由多个计算节点和节点之间的数据流图组成
 class RuntimeGraph 
 {
+
+// class Layer;
 
 public:
     RuntimeGraph(std::string param_path, std::string bin_path);
@@ -34,8 +37,6 @@ public:
     void Build(const std::string &input_name, const std::string &output_name);
 
     const std::vector<std::shared_ptr<RuntimeOperator>> &get_topo_queues() const;
-
-
 
 private:
     static void InitGraphOperatorsInput(
@@ -56,6 +57,8 @@ private:
     static void InitGraphParams(
         const std::map<std::string, pnnx::Parameter> &params,
         const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+    static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 
     void ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op);
 

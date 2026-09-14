@@ -14,7 +14,7 @@ set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 aux_source_directory(./test DIR_TEST_ARMA)
 aux_source_directory(./src DIR_SOURCE_ARMA)
 
-add_executable(tensor  main.cpp ${DIR_TEST_ARMA} ${DIR_SOURCE_ARMA})
+add_executable(tensor  tensor_main.cpp ${DIR_TEST_ARMA} ${DIR_SOURCE_ARMA})
 target_link_libraries(tensor  ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(tensor PUBLIC ${glog_INCLUDE_DIR})

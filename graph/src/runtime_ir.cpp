@@ -281,6 +281,21 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
         }
     }
 
+    for (const auto &kOperator : this->operators_) 
+    {
+        // 除了输入和输出节点，都创建layer
+        if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") 
+        {
+            std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
+            CHECK(layer != nullptr) << "Layer " << kOperator->name << " create failed!";
+            if (layer)
+            {
+                kOperator->layer = layer;
+                layer->set_runtime_operator(kOperator);
+            }
+        }
+    }
+
     // 初始化节点的输入和输出空间
     RuntimeOperatorUtils::InitOperatorInput(operators_);
     RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
@@ -340,6 +355,14 @@ void RuntimeGraph::ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op)
         CHECK_EQ(op->has_forward, true);
     }
     this->topo_operators_.push_back(root_op);
+}
+
+std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op)
+{
+    LOG_IF(FATAL, !op) << "Operator is empty!";
+    auto layer = LayerRegisterer::CreateLayer(op);
+    LOG_IF(FATAL, !layer) << "Layer init failed " << op->type;
+    return layer;
 }
 
 }

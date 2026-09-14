@@ -3,6 +3,7 @@
 
 #include<vector>
 #include<armadillo>
+#include <glog/logging.h>
 
 namespace my_vllm
 {
@@ -27,6 +28,8 @@ public:
     explicit Tensor(uint32_t size);
     explicit Tensor(uint32_t rows, uint32_t cols);
     explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
+    explicit Tensor(const std::vector<uint32_t> &shapes);
+
     uint32_t rows() const;
     uint32_t cols() const;
     uint32_t channels() const;
