@@ -13,7 +13,7 @@ class Layer;
 
 struct RuntimeOperator 
 {
-    virtual ~RuntimeOperator();
+    // virtual ~RuntimeOperator();
     bool has_forward = false;
     std::string name;                /// 节点名称，唯一标识算子
     std::string type;                /// 算子类型：Conv2d、BatchNorm、Relu
@@ -23,7 +23,8 @@ struct RuntimeOperator
     std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;
     std::vector<std::shared_ptr<RuntimeOperand>> input_operands_seq;
     std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators;
-    std::map<std::string, RuntimeParameter*> params;
+    // std::map<std::string, RuntimeParameter*> params;
+    std::map<std::string, std::shared_ptr<RuntimeParameter>> params;
     std::map<std::string, std::shared_ptr<RuntimeAttribute>> attribute;
 };
 

@@ -147,11 +147,76 @@ InferStatus MaxPoolingLayer::Forward(
 
 
 ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator> &op,
-    std::shared_ptr<Layer> &maxpooling_layer) 
+    const std::shared_ptr<RuntimeOperator>& op,
+    std::shared_ptr<Layer>& max_layer)
 {
-    CHECK(op != nullptr) << "MaxPooling operator is nullptr";
-    maxpooling_layer = std::make_shared<MaxPoolingLayer>();
+    CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
+    const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
+    if (params.find("stride") == params.end()) 
+    {
+        LOG(ERROR) << "Can not find the stride parameter";
+        return ParseParameterAttrStatus::kParameterMissingStride;
+    }
+
+    auto stride = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
+    if (!stride)
+    {
+        LOG(ERROR) << "Can not find the stride parameter";
+        return ParseParameterAttrStatus::kParameterMissingStride;
+    }
+
+    if (params.find("padding") == params.end()) 
+    {
+        LOG(ERROR) << "Can not find the padding parameter";
+        return ParseParameterAttrStatus::kParameterMissingPadding;
+    }
+
+    auto padding = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
+    if (!padding) 
+    {
+        LOG(ERROR) << "Can not find the padding parameter";
+        return ParseParameterAttrStatus::kParameterMissingPadding;
+    }
+
+    if (params.find("kernel_size") == params.end()) 
+    {
+        LOG(ERROR) << "Can not find the kernel size parameter";
+        return ParseParameterAttrStatus::kParameterMissingKernel;
+    }
+
+    auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
+    if (!kernel_size)
+    {
+        LOG(ERROR) << "Can not find the kernel size parameter";
+        return ParseParameterAttrStatus::kParameterMissingKernel;
+    }
+    const auto& padding_values = padding->value;
+    const auto& stride_values = stride->value;
+    const auto& kernel_values = kernel_size->value;
+
+    const uint32_t dims = 2;
+    if (padding_values.size() != dims)
+    {
+        LOG(ERROR) << "Can not find the right padding parameter";
+        return ParseParameterAttrStatus::kParameterMissingPadding;
+    }
+
+    if (stride_values.size() != dims) 
+    {
+        LOG(ERROR) << "Can not find the right stride parameter";
+        return ParseParameterAttrStatus::kParameterMissingStride;
+    }
+
+    if (kernel_values.size() != dims) 
+    {
+        LOG(ERROR) << "Can not find the right kernel size parameter";
+        return ParseParameterAttrStatus::kParameterMissingKernel;
+    }
+
+    max_layer = std::make_shared<MaxPoolingLayer>(
+        padding_values.at(0), padding_values.at(1), kernel_values.at(0),
+        kernel_values.at(1), stride_values.at(0), stride_values.at(1));
+
     return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 

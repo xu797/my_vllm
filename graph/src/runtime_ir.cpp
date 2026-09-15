@@ -155,72 +155,71 @@ void RuntimeGraph::InitGraphOperatorsOutput(const std::vector<pnnx::Operand *> &
 void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> &params, const std::shared_ptr<RuntimeOperator> &runtime_operator) 
 {
     //没实现
-    for (const auto& [param_name, pnnx_param] : params)
+    for (const auto& [name, parameter] : params) 
     {
-        RuntimeParameter* rt_param = nullptr;
-        switch (pnnx_param.type)
+        const int type = parameter.type;
+        switch (type) 
         {
-            case 1:
+            case int(RuntimeParameterType::kParameterUnknown): 
             {
-                auto* p = new RuntimeParameterBool();
-                p->value = pnnx_param.b;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameter> runtime_parameter = std::make_shared<RuntimeParameter>();
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 2:
+
+            case int(RuntimeParameterType::kParameterBool): 
             {
-                auto* p = new RuntimeParameterInt();
-                p->value = pnnx_param.i;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterBool> runtime_parameter = std::make_shared<RuntimeParameterBool>(parameter.b);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 3:
+
+            case int(RuntimeParameterType::kParameterInt): 
             {
-                auto* p = new RuntimeParameterFloat();
-                p->value = pnnx_param.f;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterInt> runtime_parameter = std::make_shared<RuntimeParameterInt>(parameter.i);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 4:
+
+            case int(RuntimeParameterType::kParameterFloat):
             {
-                auto* p = new RuntimeParameterString();
-                p->value = pnnx_param.s;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterFloat> runtime_parameter = std::make_shared<RuntimeParameterFloat>(parameter.f);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 5:
+
+            case int(RuntimeParameterType::kParameterString):
             {
-                auto* p = new RuntimeParameterIntArray();
-                p->value = pnnx_param.ai;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterString> runtime_parameter = std::make_shared<RuntimeParameterString>(parameter.s);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 6:
+
+            case int(RuntimeParameterType::kParameterIntArray): 
             {
-                auto* p = new RuntimeParameterFloatArray();
-                p->value = pnnx_param.af;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterIntArray> runtime_parameter = std::make_shared<RuntimeParameterIntArray>(parameter.ai);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            case 7:
+
+            case int(RuntimeParameterType::kParameterFloatArray): 
             {
-                auto* p = new RuntimeParameterStringArray();
-                p->value = pnnx_param.as;
-                rt_param = p;
+                std::shared_ptr<RuntimeParameterFloatArray> runtime_parameter = std::make_shared<RuntimeParameterFloatArray>(parameter.af);
+                runtime_operator->params.insert({name, runtime_parameter});
                 break;
             }
-            default:
-                // return ParseParameterAttrStatus::kParameterMissingUnknown;
-                return;
+            case int(RuntimeParameterType::kParameterStringArray): 
+            {
+                std::shared_ptr<RuntimeParameterStringArray> runtime_parameter = std::make_shared<RuntimeParameterStringArray>(parameter.as);
+                runtime_operator->params.insert({name, runtime_parameter});
+                break;
+            }
+            default: 
+            {
+                LOG(FATAL) << "Unknown parameter type: " << type;
+            }
         }
-        if (rt_param == nullptr)
-        {
-            // return ParseParameterAttrStatus::kParameterMissingUnknown;
-            return;
-        }
-        runtime_operator->params[param_name] = rt_param;
     }
-    // return ParseParameterAttrStatus::kParameterAttrParseSuccess;`
 }
 
 void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs, const std::shared_ptr<RuntimeOperator> &runtime_operator)
