@@ -38,6 +38,10 @@ public:
 
     const std::vector<std::shared_ptr<RuntimeOperator>> &get_topo_queues() const;
 
+    static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
+
+    std::vector<std::shared_ptr<Tensor<float>>> Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs, bool debug);
+
 private:
     static void InitGraphOperatorsInput(
         const std::vector<pnnx::Operand *> &inputs, 
@@ -58,9 +62,9 @@ private:
         const std::map<std::string, pnnx::Parameter> &params,
         const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
-    static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
-
     void ReverseTopo(const std::shared_ptr<RuntimeOperator> &root_op);
+    
+    static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op, const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_data);
 
 private:
     enum class GraphState

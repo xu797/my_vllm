@@ -1,0 +1,40 @@
+find_package(OpenMP REQUIRED)
+find_package(Armadillo REQUIRED)
+find_package(glog REQUIRED)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+find_package(GTest REQUIRED)
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+# link_directories(${OpenCV_LIBRARY_DIRS}) # 删除
+find_package(CURL REQUIRED)
+
+set(link_lib glog::glog GTest::gtest)
+if (!WIN32)
+    set(link_lib "${link_lib} pthread")
+endif ()
+set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
+aux_source_directory(./resnet/test DIR_TEST_ARMA)
+# aux_source_directory(./src DIR_SOURCE_ARMA)
+aux_source_directory(${PROJECT_SOURCE_DIR}/tensor/src TENSOR_SRC)
+aux_source_directory(${PROJECT_SOURCE_DIR}/graph/src GRAPH_SRC)
+aux_source_directory(${PROJECT_SOURCE_DIR}/layer/src LAYER_SRC)
+aux_source_directory(${PROJECT_SOURCE_DIR}/expression/src EXPRESSION_SRC)
+aux_source_directory(${PROJECT_SOURCE_DIR}/operators/src OPERATORS_SRC)
+
+add_executable(model_main model_main.cpp ${DIR_TEST_ARMA} ${TENSOR_SRC} ${GRAPH_SRC} ${LAYER_SRC} ${OPERATORS_SRC} ${EXPRESSION_SRC})
+
+target_link_libraries(model_main ${OpenCV_LIBS} CURL::libcurl ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
+
+target_include_directories(model_main PUBLIC ${glog_INCLUDE_DIR})
+target_include_directories(model_main PUBLIC ${GTest_INCLUDE_DIR})
+target_include_directories(model_main PUBLIC ${Armadillo_INCLUDE_DIR})
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/tensor/include)
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/graph/include)
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/layer/include)
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/expression/include)
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/operators/include)
+target_include_directories(model_main PUBLIC ${PROJECT_SOURCE_DIR}/operators/utils)
+
+enable_testing()

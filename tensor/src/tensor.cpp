@@ -137,7 +137,7 @@ void Tensor<float>::Fill(const std::vector<float>& values, bool row_major)
     assert(!this->data_.empty() && "tensor data is empty");
     const uint32_t total_elements = values.size();
     // assert((total_elements != this->data_.size()) && "size is not same");
-    assert((total_elements != this->data_.size()) && "size is not same");
+    assert((total_elements == this->data_.size()) && "size is not same");
 
     if(row_major)
     {
