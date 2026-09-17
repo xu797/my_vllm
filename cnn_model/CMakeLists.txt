@@ -15,7 +15,7 @@ if (!WIN32)
 endif ()
 set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
-aux_source_directory(./resnet/test DIR_TEST_ARMA)
+# aux_source_directory(./resnet/test DIR_TEST_ARMA)
 # aux_source_directory(./src DIR_SOURCE_ARMA)
 aux_source_directory(${PROJECT_SOURCE_DIR}/tensor/src TENSOR_SRC)
 aux_source_directory(${PROJECT_SOURCE_DIR}/graph/src GRAPH_SRC)

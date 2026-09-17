@@ -11,3 +11,4 @@ int main(int argc, char *argv[]) {
   LOG(INFO) << "Start test...\n";
   return RUN_ALL_TESTS();
 }
+

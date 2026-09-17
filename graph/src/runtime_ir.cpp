@@ -299,7 +299,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
     RuntimeOperatorUtils::InitOperatorInput(operators_);
     RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
 
-    // 构建拓扑顺序
+    // 构建拓扑顺序 见assests
     topo_operators_.clear();
     for (const auto &[_, op] : operators_maps_)
     {
@@ -366,7 +366,7 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug)
 {
-  // 检查当前的执行图是否已经初始化完毕
+    // 检查当前的执行图是否已经初始化完毕
     if (graph_state_ < GraphState::Complete) 
     {
         LOG(FATAL) << "Graph need be build!";

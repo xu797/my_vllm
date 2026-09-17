@@ -1,6 +1,3 @@
-//
-// Created by fss on 23-8-5.
-//
 #include <gtest/gtest.h>
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -10,7 +7,8 @@
 
 using namespace my_vllm;
 
-my_vllm::sftensor PreProcessImage(const cv::Mat &image) {
+my_vllm::sftensor PreProcessImage(const cv::Mat &image)
+{
     using namespace my_vllm;
     assert(!image.empty());
     // 调整输入大小
@@ -29,7 +27,8 @@ my_vllm::sftensor PreProcessImage(const cv::Mat &image) {
     sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
 
     uint32_t index = 0;
-    for (const auto &split_image : split_images) {
+    for (const auto &split_image : split_images) 
+    {
         assert(split_image.total() == input_w * input_h);
         const cv::Mat &split_image_t = split_image.t();
         memcpy(input->slice(index).memptr(), split_image_t.data,
@@ -52,17 +51,21 @@ my_vllm::sftensor PreProcessImage(const cv::Mat &image) {
     return input;
 }
 
-TEST(test_net, resnet) {
+TEST(test_net, resnet) 
+{
     using namespace my_vllm;
     const std::string &param_path = "/home/xu/work/my_vllm/model/model_file/resnet18_batch1.pnnx.param";
     const std::string &weight_path = "/home/xu/work/my_vllm/model/model_file/resnet18_batch1.pnnx.bin";
     RuntimeGraph graph(param_path, weight_path);
+    // std::cout << "Before Build" << std::endl;
+    // __builtin_trap(); // 触发程序中断，gdb一定会停在这里
     graph.Build("pnnx_input_0", "pnnx_output_0");
 
     const uint32_t batch_size = 1;
     std::vector<sftensor> inputs;
     const std::string &path("/home/xu/work/my_vllm/model/model_file/car.jpg");
-    for (uint32_t i = 0; i < batch_size; ++i) {
+    for (uint32_t i = 0; i < batch_size; ++i) 
+    {
         cv::Mat image = cv::imread(path);
         // 图像预处理
         sftensor input = PreProcessImage(image);
